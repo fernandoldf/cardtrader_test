@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Cardtrader Hub{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Welcome</h2>
+    <p class="text-secondary">Your modern toolkit for Magic: The Gathering.</p>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('card_search') }}">Card Search</a></li>
+            <li><a href="{{ url_for('random_card') }}">Get a Random Card</a></li>
+            <li><a href="{{ url_for('price_tracking') }}">Price Tracking</a></li>
+            <li><a href="{{ url_for('interactive_game') }}">Interactive Game</a></li>
+            <li><a href="{{ url_for('card_recognition') }}">Card Recognition</a></li>
+        </ul>
+    </nav>
+</div>
+{% endblock %}
