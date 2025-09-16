@@ -26,6 +26,15 @@ def allowed_file(filename):
 def home():
     return render_template('index.html')
 
+@app.route('/card-detail/<card_id>')
+def card_detail(card_id):
+    card_data = Scryfall.search_unique_card(card_id)
+    if card_data != "Not found":
+        return render_template('pages/card-detail.html', card=card_data)
+    else:
+        flash('Card not found', 'error')
+        return redirect(url_for('home'))
+
 @app.route('/random-card')
 def random_card():
     try:
@@ -39,8 +48,36 @@ def random_card():
         flash(f'Error fetching random card: {str(e)}', 'error')
         return redirect(url_for('home'))
 
-@app.route('/card-search')
+@app.route('/card-search', methods=['GET', 'POST'])
 def card_search():
+    if request.method == 'POST':
+        search_term = request.form.get('search_term').strip()
+        print(f"Received search term: {search_term}")
+        
+        if not search_term:
+            flash('Please enter a search term', 'error')
+            return redirect(url_for('card_search'))
+        
+        try:
+            # Search for cards using Scryfall
+            cards = Scryfall.search_card_by_query(search_term)
+            print(f"Search results: {cards}")
+            
+            if cards == "Not found" or len(cards) == 0:
+                flash(f'No cards found for "{search_term}"', 'info')
+                return render_template('pages/card-search.html', 
+                                     cards=[], 
+                                     search_term=search_term)
+            else:
+                cards = cards[:30]
+                return render_template('pages/card-search.html', 
+                                     cards=cards, 
+                                     search_term=search_term)
+                
+        except Exception as e:
+            flash(f'Error searching for cards: {str(e)}', 'error')
+            return redirect(url_for('card_search'))
+    
     return render_template('pages/card-search.html')
 
 @app.route('/price-tracking')
@@ -81,7 +118,7 @@ def card_recognition():
                     if card_data == "Not found":
                         flash('Card not found in Scryfall database', 'error')
                         return redirect(request.url)
-                    return render_template('pages/card-found.html',
+                    return render_template('pages/card-detail.html',
                                          identifier=identifier, 
                                          card=card_data)
                 else:
