@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container">
     <h2>Card Recognition</h2>
-    <p class="text-secondary">Upload an image of a card (PNG, JPG, JPEG) up to 1MB.</p>
+    <p class="text-secondary">Upload an image of a card (PNG, JPG, JPEG) up to 5MB.</p>
     
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -17,7 +17,7 @@
     
     <form class="form" action="{{ url_for('card_recognition') }}" method="post" enctype="multipart/form-data">
         <div class="file-input-wrapper">
-            <input type="file" name="card_image" id="fileInput" accept="image/png,image/jpeg,image/jpg" required>
+            <input type="file" name="card_image" id="fileInput" accept="image/png,image/jpeg,image/jpg,image/heic" required>
             <span class="file-input-label" id="fileLabel">Choose a file...</span>
         </div>
         <button type="submit" class="btn btn-full" id="submitBtn" disabled>Upload</button>
@@ -30,7 +30,7 @@
     const fileInput = document.getElementById('fileInput');
     const fileLabel = document.getElementById('fileLabel');
     const submitBtn = document.getElementById('submitBtn');
-    const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
     fileInput.addEventListener('change', () => {
         if (fileInput.files.length > 0) {
@@ -38,7 +38,7 @@
             fileLabel.textContent = file.name;
 
             if (file.size > MAX_FILE_SIZE) {
-                alert('Error: File is larger than 1MB. Please choose a smaller file.');
+                alert('Error: File is larger than 5MB. Please choose a smaller file.');
                 submitBtn.disabled = true;
             } else {
                 submitBtn.disabled = false;

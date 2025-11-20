@@ -57,7 +57,7 @@ class CardRecognition:
         if not ocr_text:
             return None
         
-        card = {"set": None, "number": None, "name": None}
+        card = {"set": "", "number": "", "name": ""}
 
         # 1. Try to find a 3-character set code (e.g., KHM, MH2)
         # This looks for a 3-character word composed of uppercase letters and numbers.
@@ -100,6 +100,6 @@ class CardRecognition:
 
 if __name__ == '__main__':
     # Example usage
-    path_to_your_card_image = './cards/pongify.jpeg'  # Update with your image path
+    path_to_your_card_image = './cards/isshin.jpg'  # Update with your image path
     result = CardRecognition.identify_card_from_image(path_to_your_card_image)
     print(f"Identified card: {result}")

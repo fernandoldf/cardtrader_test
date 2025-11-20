@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from werkzeug.utils import secure_filename
 from scryfall import Scryfall
 from card_recognition import CardRecognition
-import os
+from image_resize import process_image
 
 
 app = Flask(__name__)
@@ -11,8 +11,8 @@ app.secret_key = os.environ.get("APP_SECRET_KEY")  # Change this to a random sec
 
 # Configure upload settings
 UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-MAX_FILE_SIZE = 1 * 1024 * 1024  # 1MB
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'heic'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
@@ -52,7 +52,7 @@ def random_card():
 @app.route('/card-search', methods=['GET', 'POST'])
 def card_search():
     if request.method == 'POST':
-        search_term = request.form.get('search_term').strip()
+        search_term = request.form.get('search_term').strip() # type: ignore
         print(f"Received search term: {search_term}")
         
         if not search_term:
@@ -98,17 +98,20 @@ def card_recognition():
         
         file = request.files['card_image']
         
-        if file.filename == '':
+        if file.filename == None or file.filename == '':
             flash('No file selected', 'error')
             return redirect(request.url)
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'original_' + filename)
             file.save(filepath)
             
             try:
-                identifier = CardRecognition.identify_card_from_image(filepath)
+                image_new_path = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_' + (filename).rsplit('.', 1)[0] + '.jpeg')
+                print(f"Processing image for resizing and compression: {filepath} -> {image_new_path}")
+                process_image(filepath, image_new_path)
+                identifier = CardRecognition.identify_card_from_image(image_new_path)
                 
                 # Clean up uploaded file
                 os.remove(filepath)
